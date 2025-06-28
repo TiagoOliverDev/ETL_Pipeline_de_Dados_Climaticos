@@ -1,0 +1,101 @@
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.9.1
+  env_file:
+    - .env
+  volumes:
+    # Mapeamento de diretórios locais para dentro do container
+    # Isso permite que o Airflow acesse DAGs, logs, plugins, módulos customizados e dados
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./src:/opt/airflow/src
+    - ./config:/opt/airflow/config
+    - ./data:/opt/airflow/data
+    # Permite que o Airflow use o Docker para executar tarefas via DockerOperator (se necessário)
+    - /var/run/docker.sock:/var/run/docker.sock
+
+  # Executa como usuário não-root por segurança (ID 50000 deve ter permissão nos volumes mapeados)
+  user: "50000:0"
+  networks:
+    - airflow-network
+
+services:
+  # Banco de dados para os metadados do Airflow (informações sobre DAGs, execuções, logs, etc.)
+  postgres-airflow:
+    image: postgres:16
+    container_name: airflow_postgres_metadata
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-airflow}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}
+      - POSTGRES_DB=${POSTGRES_DB:-airflow}
+    ports:
+      # Porta alternativa (5433) para evitar conflito com outro PostgreSQL local
+      - "5433:5432"
+    volumes:
+      # Volume persistente para os dados do banco de metadados
+      - airflow-pgdata:/var/lib/postgresql/data
+    networks:
+      - airflow-network
+
+  # Banco de dados separado para armazenar os dados do pipeline ETL
+  postgres-etl:
+    image: postgres:16
+    container_name: city_postgres_etl
+    env_file:
+      - .env
+    ports:
+      # Porta padrão 5432 para acesso ao banco de dados ETL
+      - "5432:5432"
+    volumes:
+      # Volume persistente para os dados ETL
+      - etl-pgdata:/var/lib/postgresql/data
+    networks:
+      - airflow-network
+
+  # Scheduler: Componente que agenda e executa as tarefas definidas nas DAGs
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    depends_on:
+      - airflow-init
+      - postgres-airflow
+    command: scheduler
+
+  # Webserver: Interface web do Airflow acessível via navegador (porta 8080)
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    depends_on:
+      - airflow-scheduler
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  # Serviço de inicialização: Executado uma única vez para configurar o banco e criar usuário admin
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    depends_on:
+      - postgres-airflow
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db init &&
+        airflow users create \
+          --username "${_AIRFLOW_WWW_USER_USERNAME:-admin}" \
+          --firstname "Admin" \
+          --lastname "User" \
+          --role "Admin" \
+          --email "admin@example.com" \
+          --password "${_AIRFLOW_WWW_USER_PASSWORD:-admin}"
+
+# Rede Docker compartilhada entre todos os containers do Airflow
+networks:
+  airflow-network:
+    name: airflow-network
+
+# Volumes persistentes utilizados pelos bancos de dados
+volumes:
+  airflow-pgdata:
+  etl-pgdata:
