@@ -1,0 +1,25 @@
+# Ignorar o ambiente virtual do Poetry
+.env
+.venv/
+envetl
+
+# Ignorar caches do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar caches e arquivos de configuração de IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# Ignorar arquivos de dados locais e notebooks
+data/raw/
+data/processed/
+
+# Ignorar notebooks temporários 
+notebooks/*.ipynb_checkpoints/
+
+
+logs/
+
