@@ -1,0 +1,30 @@
+[project]
+name = "api-weather-pipeline"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "vbluuiza",email = "luizavieirabelo3008@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas (>=2.3.0,<3.0.0)",
+    "matplotlib (>=3.10.3,<4.0.0)",
+    "numpy (>=2.3.0,<3.0.0)",
+    "sqlalchemy (>=2.0.41,<3.0.0)",
+    "pyarrow (>=20.0.0,<21.0.0)",
+    "requests (>=2.32.4,<3.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "ipykernel (>=6.29.5,<7.0.0)",
+    "psycopg2 (>=2.9.10,<3.0.0)",
+    "cryptography (>=45.0.4,<46.0.0)",
+    "pendulum (>=3.1.0,<4.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "api_weather_pipeline", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
