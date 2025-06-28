@@ -89,7 +89,7 @@ cd ETL_Pipeline_de_Dados_Climaticos
 
 ### 3. **Crie o Arquivo `.env`**
 
-Baseie-se no modelo abaixo .env.example:
+Baseie-se no modelo .env.example
 
 ### 4. **Suba o Ambiente com Docker Compose**
 
