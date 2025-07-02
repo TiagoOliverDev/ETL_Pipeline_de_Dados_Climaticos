@@ -16,7 +16,7 @@ Pipeline ETL para coleta, processamento e armazenamento de dados meteorológicos
 ## 🗂️ Estrutura do Projeto
 
 ```bash
-api_meteo_pipeline/
+ETL_Pipeline_de_Dados_Climaticos/
 ├── config/                  # Configurações globais do pipeline
 │   └── settings.py
 ├── dags/                    # DAGs do Airflow
@@ -103,8 +103,10 @@ docker-compose up --build
 ### 5. **Ative a DAG no Airflow**
 
 1. Acesse a interface web do Airflow
-2. Ative a DAG `natal_weather_pipeline`
-3. Você pode disparar manualmente ou aguardar a execução automática
+2. Vá em ADMIN/CONNECTIONS
+3. Escolha o tipo postgresql e cadastre as credênciais do banco de dados local ou de produção e salve
+3. Ative a DAG `natal_weather_pipeline`
+4. Você pode disparar manualmente ou aguardar a execução automática
 
 ---
 
@@ -118,14 +120,16 @@ python main.py
 
 ---
 
-## 🧩 Principais Arquivos
 
-- `dags/city_weather_dag.py`: DAG principal do Airflow
+
+## 🗂️ Estrutura de Arquivos do Projeto
+
+- `dags/city_weather_dag.py`: Responsável por extrair dados da API
 - `src/etl/extract_data.py`: Função de extração da API
-- `src/etl/transform_data.py`: Funções de transformação
-- `src/etl/load_data.py`: Função de carga no PostgreSQL
-- `config/settings.py`: Parâmetros globais do pipeline
-- `main.py`: Execução manual do pipeline
+- `src/etl/transform_data.py`: Contém as rotinas de transformação dos dados
+- `src/etl/load_data.py`: Realiza a carga dos dados no banco PostgreSQL
+- `config/settings.py`: Armazena as configurações globais do pipeline
+- `main.py`: Permite executar o pipeline manualmente (sete a LAT e LONG ao chamar main())
 
 ---
 
