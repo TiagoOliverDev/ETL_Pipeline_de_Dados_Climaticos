@@ -71,6 +71,26 @@ services:
       - "8080:8080"
     command: webserver
 
+
+  streamlit-assistant:
+    build:
+      context: ./assistant
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_HOST=${HOST}
+      - DB_PORT=${PORT}
+      - DB_USER=${USERNAME}
+      - DB_PASSWORD=${PASSWORD}
+      - DB_NAME=${DATABASE}
+    depends_on:
+      - postgres-etl
+    volumes:
+      - ./assistant:/app
+    networks:
+      - airflow-network
+
   # Serviço de inicialização: Executado uma única vez para configurar o banco e criar usuário admin
   airflow-init:
     <<: *airflow-common
